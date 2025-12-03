@@ -1,0 +1,14 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: devops2-hpa-mukhanovt
+  labels:
+    created-by: mukhanovt
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: devops2-deployment-mukhanovt
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 50

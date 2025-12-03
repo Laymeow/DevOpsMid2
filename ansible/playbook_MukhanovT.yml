@@ -1,0 +1,33 @@
+---
+- name: DevOps2 Infrastructure Setup by MukhanovT
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  
+  tasks:
+  - name: Check Docker installation
+    command: docker --version
+    register: docker_result
+    
+  - name: Display Docker version
+    debug:
+      msg: "{{ docker_result.stdout }}"
+      
+  - name: Check Kubernetes installation
+    command: kubectl version --client
+    register: kubectl_result
+    
+  - name: Display Kubernetes version
+    debug:
+      msg: "{{ kubectl_result.stdout }}"
+      
+  - name: Deploy DevOps2 application
+    command: kubectl apply -f ../kubernetes/
+    
+  - name: Verify deployment
+    command: kubectl get pods
+    register: pods_result
+    
+  - name: Display pods
+    debug:
+      msg: "{{ pods_result.stdout }}"

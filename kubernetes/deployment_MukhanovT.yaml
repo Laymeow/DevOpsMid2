@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops2-deployment-mukhanovt
+  labels:
+    app: devops2-app
+    created-by: mukhanovt
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: devops2-app
+  template:
+    metadata:
+      labels:
+        app: devops2-app
+        created-by: mukhanovt
+    spec:
+      containers:
+      - name: devops2-app
+        image: devops2-app-mukhanovt:1.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "kubernetes"
