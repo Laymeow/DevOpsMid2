@@ -1,0 +1,109 @@
+---
+- name: DevOps2 Full Deployment by MukhanovT
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  
+  vars:
+    app_name: "todo-app-mukhanovt"
+    app_port: 8090
+    db_name: "todo"
+    db_user: "postgres"
+    db_password: "postgres"
+  
+  tasks:
+    - name: Print deployment info
+      debug:
+        msg: "Starting DevOps2 deployment by MukhanovT"
+    
+    - name: Check prerequisites
+      block:
+        - name: Check Java installation
+          command: java -version
+          register: java_result
+          ignore_errors: yes
+          
+        - name: Check Maven installation
+          command: mvn --version
+          register: maven_result
+          ignore_errors: yes
+          
+        - name: Check Docker installation
+          command: docker --version
+          register: docker_result
+          
+        - name: Check Kubernetes CLI
+          command: kubectl version --client
+          register: kubectl_result
+          ignore_errors: yes
+      
+      always:
+        - name: Display prerequisites status
+          debug:
+            msg:
+              - "Java: {{ 'OK' if java_result is success else 'Not found' }}"
+              - "Maven: {{ 'OK' if maven_result is success else 'Not found' }}"
+              - "Docker: {{ docker_result.stdout }}"
+              - "Kubectl: {{ 'OK' if kubectl_result is success else 'Not found' }}"
+    
+    - name: Build Spring Boot application
+      command: mvn clean package -DskipTests
+      args:
+        chdir: "{{ playbook_dir }}"
+    
+    - name: Build Docker image
+      command: docker build -f Dockerfile_MukhanovT -t {{ app_name }}:latest .
+      args:
+        chdir: "{{ playbook_dir }}"
+    
+    - name: Create Docker network
+      command: docker network create devops2-network || true
+    
+    - name: Start PostgreSQL container
+      command: |
+        docker run -d \
+          --name postgres-mukhanovt \
+          --network devops2-network \
+          -e POSTGRES_USER={{ db_user }} \
+          -e POSTGRES_PASSWORD={{ db_password }} \
+          -e POSTGRES_DB={{ db_name }} \
+          -p 5432:5432 \
+          postgres:15
+    
+    - name: Start application container
+      command: |
+        docker run -d \
+          --name {{ app_name }} \
+          --network devops2-network \
+          -e SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-mukhanovt:5432/{{ db_name }} \
+          -e SPRING_DATASOURCE_USERNAME={{ db_user }} \
+          -e SPRING_DATASOURCE_PASSWORD={{ db_password }} \
+          -p {{ app_port }}:{{ app_port }} \
+          {{ app_name }}:latest
+    
+    - name: Wait for application to start
+      command: sleep 30
+    
+    - name: Verify application health
+      uri:
+        url: "http://localhost:{{ app_port }}/tasks/health"
+        method: GET
+        status_code: 200
+      register: health_check
+      
+    - name: Display deployment status
+      debug:
+        msg:
+          - "Deployment completed successfully!"
+          - "Application: http://localhost:{{ app_port }}/tasks"
+          - "Health: http://localhost:{{ app_port }}/tasks/health"
+          - "PostgreSQL: localhost:5432"
+          - "Docker containers are running"
+    
+    - name: Show running containers
+      command: docker ps
+      register: containers
+      
+    - name: Display containers
+      debug:
+        msg: "{{ containers.stdout_lines }}"

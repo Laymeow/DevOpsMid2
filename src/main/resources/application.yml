@@ -1,0 +1,37 @@
+server:
+  port: 8090
+  servlet:
+    context-path: /
+    
+spring:
+  application:
+    name: todo-app
+    
+  datasource:
+    url: jdbc:postgresql://localhost:5432/todo
+    username: postgres
+    password: qweqwe
+    driver-class-name: org.postgresql.Driver
+    
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      
+logging:
+  level:
+    org.springframework.web: INFO
+    com.example.todoapp: DEBUG

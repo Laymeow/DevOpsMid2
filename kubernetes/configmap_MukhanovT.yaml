@@ -1,10 +1,15 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: devops2-config-mukhanovt
+  name: todo-config
   labels:
     created-by: mukhanovt
 data:
-  app.name: "DevOps2 Application by MukhanovT"
-  app.version: "1.0.0"
-  spring.profiles.active: "production"
+  application.yml: |
+    server:
+      port: 8090
+    spring:
+      application:
+        name: todo-app-mukhanovt
+  database.url: "jdbc:postgresql://postgres-service:5432/todo"
+  environment: "production"

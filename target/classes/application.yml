@@ -1,14 +1,18 @@
+server:
+  port: 8090
+  servlet:
+    context-path: /
+    
 spring:
   application:
-    name: devops2-app-mukhanovt
-    description: DevOps2 Application by MukhanovT
-  
+    name: todo-app
+    
   datasource:
-    url: jdbc:postgresql://localhost:5432/devops2db
+    url: jdbc:postgresql://localhost:5432/todo
     username: postgres
     password: qweqwe
     driver-class-name: org.postgresql.Driver
-  
+    
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,22 +20,18 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-
-server:
-  port: 8080
-  servlet:
-    context-path: /devops2
-
+        
 management:
   endpoints:
     web:
       exposure:
         include: health,info,metrics
+      base-path: /actuator
   endpoint:
     health:
       show-details: always
-
+      
 logging:
   level:
-    com.mukhanovt: INFO
-    org.springframework: WARN
+    org.springframework.web: INFO
+    com.example.todoapp: DEBUG
