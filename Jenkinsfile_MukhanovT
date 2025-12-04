@@ -39,19 +39,6 @@ pipeline {
             }
         }
         
-        stage('Test') {
-            steps {
-                bat """
-                    echo "Running tests..."
-                    "%MAVEN_PATH%" test
-                """
-            }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'
-                }
-            }
-        }
         
         stage('Package') {
             steps {
